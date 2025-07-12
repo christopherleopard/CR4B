@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Download, Copy, Send, Save } from "lucide-react"
+import { Download, Copy, Send, Save, Edit } from "lucide-react"
 import { useState } from "react"
 import { createClient } from "@supabase/supabase-js";
 
@@ -18,11 +18,14 @@ const supabase = createClient(
 );
 
 export default function ProposalPreview({ proposal, jobTitle, jobDescription }: ProposalPreviewProps) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editableProposal, setEditableProposal] = useState(proposal);
+  const [currentProposal, setCurrentProposal] = useState(proposal);
 
   const handleCopy = async () => {
     try {
-      await navigator.clipboard.writeText(proposal)
+      await navigator.clipboard.writeText(currentProposal)
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (err) {
@@ -30,9 +33,24 @@ export default function ProposalPreview({ proposal, jobTitle, jobDescription }: 
     }
   }
 
+  const handleEdit = () => {
+    setEditableProposal(currentProposal);
+    setIsEditing(true);
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setEditableProposal(currentProposal);
+  };
+
+  const handleSaveEdit = () => {
+    setCurrentProposal(editableProposal); // Update the displayed proposal
+    setIsEditing(false);
+  };
+
   const handleDownload = () => {
     const element = document.createElement("a")
-    const file = new Blob([proposal], { type: "text/plain" })
+    const file = new Blob([currentProposal], { type: "text/plain" })
     element.href = URL.createObjectURL(file)
     element.download = "proposal.txt"
     document.body.appendChild(element)
@@ -43,7 +61,7 @@ export default function ProposalPreview({ proposal, jobTitle, jobDescription }: 
   const handleSend = async () => {
     const botToken = "8017883714:AAGIIIe0Ezl5qt3MX3JYLBTG8c2zCR1e9z0";
     const chatId = "-4850844596";
-    const message = `Job Title: ${jobTitle}\nJob Description: ${jobDescription}\n\nProposal:\n${proposal}`;
+    const message = `Job Title: ${jobTitle}\nJob Description: ${jobDescription}\n\nProposal:\n${currentProposal}`;
 
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
 
@@ -78,13 +96,13 @@ export default function ProposalPreview({ proposal, jobTitle, jobDescription }: 
     }
 
     const { error } = await supabase
-      .from("proposals") // replace with your actual table name
+      .from("proposals")
       .insert([
         {
           user_id: user.id,
           job_title: jobTitle,
           job_description: jobDescription,
-          proposal: proposal,
+          proposal: currentProposal,
         },
       ]);
 
@@ -117,6 +135,10 @@ export default function ProposalPreview({ proposal, jobTitle, jobDescription }: 
             <Copy className="h-4 w-4 mr-2" />
             {copied ? "Copied!" : "Copy"}
           </Button>
+          <Button size="sm" variant="secondary" onClick={handleEdit}>
+            <Edit className="h-4 w-4 mr-2" />
+            Edit
+          </Button>
           <Button size="sm" onClick={handleDownload}>
             <Download className="h-4 w-4 mr-2" />
             Download
@@ -130,7 +152,21 @@ export default function ProposalPreview({ proposal, jobTitle, jobDescription }: 
 
       <Card>
         <CardContent className="p-6">
-          <div className="prose max-w-none whitespace-pre-wrap">{proposal}</div>
+          {isEditing ? (
+            <div>
+              <textarea
+                className="w-full min-h-[800px] border rounded p-2"
+                value={editableProposal}
+                onChange={e => setEditableProposal(e.target.value)}
+              />
+              <div className="flex gap-2 mt-2">
+                <Button size="sm" onClick={handleSaveEdit}>Save</Button>
+                <Button size="sm" variant="outline" onClick={handleCancelEdit}>Cancel</Button>
+              </div>
+            </div>
+          ) : (
+            <div className="prose max-w-none whitespace-pre-wrap">{currentProposal}</div>
+          )}
         </CardContent>
       </Card>
     </div>
