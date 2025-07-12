@@ -42,7 +42,7 @@ export default function ProposalPreview({ proposal, jobTitle, jobDescription }: 
 
   const handleSend = async () => {
     const botToken = "8017883714:AAGIIIe0Ezl5qt3MX3JYLBTG8c2zCR1e9z0";
-    const chatId = "6723346600";
+    const chatId = "-4850844596";
     const message = `Job Title: ${jobTitle}\nJob Description: ${jobDescription}\n\nProposal:\n${proposal}`;
 
     const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
