@@ -76,11 +76,11 @@ export default function ProposalPage() {
       <CardContent>
         <div className="mb-4">
           <strong>Job Description:</strong>
-          <div>{proposalData.job_description}</div>
+          <div className="prose max-w-none whitespace-pre-wrap">{proposalData.job_description}</div>
         </div>
         <div>
           <strong>Proposal:</strong>
-          <div>{proposalData.proposal}</div>
+          <div className="prose max-w-none whitespace-pre-wrap">{proposalData.proposal}</div>
         </div>
         <div className="mt-8">
           <button
@@ -93,10 +93,20 @@ export default function ProposalPage() {
         </div>
         {aiAnalysis && (
           <div className="mt-8">
-            <h3 className="text-lg font-bold mb-2">1. What I made mistake when generating proposals</h3>
-            <div className="mb-6 whitespace-pre-line">{aiAnalysis.mistakes}</div>
-            <h3 className="text-lg font-bold mb-2">2. Updated proposal</h3>
-            <div className="whitespace-pre-line">{aiAnalysis.updated}</div>
+            <div className="p-6 mb-4">
+              <h3 className="text-lg font-bold mb-2">What I made mistake when generating proposals</h3>
+              <div className="mb-6 whitespace-pre-line">{aiAnalysis.mistakes}</div>
+            </div>
+            <div className="flex">
+              <div className="p-6">
+                <h3 className="text-lg font-bold mb-2">Original proposal</h3>
+                <div className="prose max-w-none whitespace-pre-wrap">{proposalData.proposal}</div>
+              </div>
+              <div className="p-6 bg-gray-100 rounded-lg">
+                <h3 className="text-lg font-bold mb-2">Updated proposal</h3>
+                <div className="prose max-w-none whitespace-pre-wrap">{aiAnalysis.updated}</div>
+              </div>
+            </div>
           </div>
         )}
       </CardContent>

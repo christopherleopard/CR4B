@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Download, Copy, Send, Save, Edit } from "lucide-react"
+import { Download, Send, Save, Edit } from "lucide-react"
 import { useState } from "react"
 import { createClient } from "@supabase/supabase-js";
 
@@ -18,20 +18,9 @@ const supabase = createClient(
 );
 
 export default function ProposalPreview({ proposal, jobTitle, jobDescription }: ProposalPreviewProps) {
-  const [copied, setCopied] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editableProposal, setEditableProposal] = useState(proposal);
   const [currentProposal, setCurrentProposal] = useState(proposal);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(currentProposal)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch (err) {
-      console.error("Failed to copy text: ", err)
-    }
-  }
 
   const handleEdit = () => {
     setEditableProposal(currentProposal);
@@ -87,7 +76,6 @@ export default function ProposalPreview({ proposal, jobTitle, jobDescription }: 
   };
 
   const handleSave = async () => {
-    // Get the current user
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
@@ -130,10 +118,6 @@ export default function ProposalPreview({ proposal, jobTitle, jobDescription }: 
           <Button size="sm" variant="secondary" onClick={handleSend}>
             <Send className="h-4 w-4 mr-2" />
             Send
-          </Button>
-          <Button size="sm" variant="outline" onClick={handleCopy}>
-            <Copy className="h-4 w-4 mr-2" />
-            {copied ? "Copied!" : "Copy"}
           </Button>
           <Button size="sm" variant="secondary" onClick={handleEdit}>
             <Edit className="h-4 w-4 mr-2" />
