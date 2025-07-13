@@ -224,36 +224,6 @@ export default function NewProposal() {
             </CardContent>
           </Card>
 
-          <div className="max-w-lg mx-auto border rounded p-4 space-y-4">
-            <div className="space-y-2 h-64 overflow-y-auto bg-gray-50 p-2 rounded">
-              {messages.map((msg, idx) => (
-                <div key={idx} className={msg.role === "user" ? "text-right" : "text-left"}>
-                  <span className={msg.role === "user" ? "bg-blue-100" : "bg-gray-200"} style={{ padding: 4, borderRadius: 4 }}>
-                    <b>{msg.role === "user" ? "You" : "AI"}:</b> {msg.content}
-                  </span>
-                </div>
-              ))}
-              {loading && <div className="text-gray-400">AI is typing...</div>}
-            </div>
-            <div className="flex gap-2">
-              <input
-                className="flex-1 border rounded p-2"
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && sendMessage()}
-                placeholder="Type your message..."
-                disabled={loading}
-              />
-              <button
-                className="bg-blue-500 text-white px-4 py-2 rounded"
-                onClick={sendMessage}
-                disabled={loading}
-              >
-                Send
-              </button>
-            </div>
-          </div>
-
           {isAnalyzed && (
             <Card>
               <CardHeader>

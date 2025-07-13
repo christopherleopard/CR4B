@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Menu, X, User, LogOut } from "lucide-react"
+import { Menu, X, User, LogOut, MessageCircleMore } from "lucide-react"
 import { createClientSupabase } from "@/lib/supabase"
 import { useRouter } from "next/navigation"
 import {
@@ -87,6 +87,10 @@ export default function Navbar() {
     router.push("/dashboard")
   }
 
+  const handleChat = () => {
+    router.push("/chat")
+  }
+
   return (
     <nav className="bg-white border-b border-gray-200">
       <div className="container mx-auto px-4">
@@ -129,6 +133,11 @@ export default function Navbar() {
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />
                     Sign out
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleChat}>
+                    <MessageCircleMore className="mr-2 h-4 w-4" />
+                    Chat with AI
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
