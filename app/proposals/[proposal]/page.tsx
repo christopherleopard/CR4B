@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { createClient } from "@supabase/supabase-js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Save } from "lucide-react"
+import { Button } from "@/components/ui/button"
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -60,6 +62,44 @@ export default function ProposalPage() {
     setAiLoading(false);
   };
 
+  interface User {
+    id: string;
+    [key: string]: any;
+  }
+
+  interface SupabaseUserResponse {
+    data: {
+      user: User | null;
+    };
+  }
+
+  const handleSave = async (updated_proposal: string): Promise<void> => {
+    const { data: { user } }: SupabaseUserResponse = await supabase.auth.getUser();
+
+    if (!user) {
+      alert("You must be logged in to save.");
+      return;
+    }
+
+    const id = typeof proposalId === "string" ? parseInt(proposalId, 10) : proposalId;
+
+    const { error } = await supabase
+      .from("proposals")
+      .update({
+          proposal: updated_proposal,
+      })
+      .eq("id", id);
+
+    if (error) {
+      console.error("Error saving proposal:", error);
+      alert("Failed to save proposal.");
+    } else {
+      console.log(updated_proposal);
+      console.log(proposalId);
+      alert("Proposal saved successfully!");
+    }
+  };
+
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Loading...</div>;
   }
@@ -105,6 +145,14 @@ export default function ProposalPage() {
               <div className="p-6 bg-gray-100 rounded-lg">
                 <h3 className="text-lg font-bold mb-2">Updated proposal</h3>
                 <div className="prose max-w-none whitespace-pre-wrap">{aiAnalysis.updated}</div>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  onClick={() => handleSave(aiAnalysis.updated)}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save
+                </Button>
               </div>
             </div>
           </div>

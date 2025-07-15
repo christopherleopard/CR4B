@@ -20,11 +20,6 @@ interface JobAnalysis {
   businessType: string
 }
 
-interface Message {
-  role: "user" | "assistant";
-  content: string;
-}
-
 export default function NewProposal() {
   const [jobTitle, setJobTitle] = useState("")
   const [jobDescription, setJobDescription] = useState("")
@@ -37,31 +32,6 @@ export default function NewProposal() {
   const [generatedProposal, setGeneratedProposal] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isTesting, setIsTesting] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hello! How can I help you today?" }
-  ]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const sendMessage = async () => {
-    if (!input.trim()) return;
-    const newMessages: Message[] = [...messages, { role: "user" as const, content: input }];
-    setMessages(newMessages);
-    setInput("");
-    setLoading(true);
-
-    const res = await fetch("/api/chat", {
-      method: "POST",
-      body: JSON.stringify({ messages: newMessages }),
-      headers: { "Content-Type": "application/json" },
-    });
-    const data = await res.json();
-    setMessages([
-      ...newMessages,
-      { role: "assistant", content: data.aiMessage || "Sorry, I couldn't respond." }
-    ]);
-    setLoading(false);
-  };
 
   const testOpenAI = async () => {
     setIsTesting(true)
@@ -154,19 +124,6 @@ export default function NewProposal() {
           <h1 className="text-3xl font-bold">Create New Proposal</h1>
           <p className="text-gray-500">Generate a tailored proposal based on job description</p>
         </div>
-        <Button onClick={testOpenAI} disabled={isTesting} variant="outline">
-          {isTesting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Testing...
-            </>
-          ) : (
-            <>
-              <TestTube className="mr-2 h-4 w-4" />
-              Test OpenAI
-            </>
-          )}
-        </Button>
       </div>
 
       {error && (
@@ -263,7 +220,6 @@ export default function NewProposal() {
             <div className="h-full flex items-center justify-center border rounded-lg p-8 bg-gray-50">
               <div className="text-center">
                 <p className="text-gray-500">Paste a job description and click "Analyze" to get started</p>
-                <p className="text-sm text-gray-400 mt-2">Or click "Test OpenAI" to verify the AI integration</p>
               </div>
             </div>
           ) : (
