@@ -1,11 +1,23 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react";
+import { createClient } from "@supabase/supabase-js";
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
+
+interface ChatSession {
+  id: number;
+  created_at: string;
+  title: string;
+}
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([
@@ -39,7 +51,7 @@ export default function Chat() {
       <div className="grid grid-cols-1">
         <div className="lg:col-span-1 space-y-6">
           <div className="mx-auto border rounded p-4 space-y-4">
-            <div className="space-y-2 h-100 overflow-y-auto bg-gray-50 p-2 rounded">
+            <div className="space-y-2 min-h-[800px] overflow-y-auto bg-gray-50 p-2 rounded">
               {messages.map((msg, idx) => (
                 <div key={idx} className={msg.role === "user" ? "text-right" : "text-left"}>
                   <span className={msg.role === "user" ? "bg-blue-100" : "bg-gray-200"} style={{ padding: 4, borderRadius: 4 }}>
