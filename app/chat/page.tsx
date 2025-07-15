@@ -1,42 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Loader2, Sparkles, AlertCircle, TestTube } from "lucide-react"
-import JobDescriptionAnalysis from "@/components/proposal/job-description-analysis"
-import ProposalPreview from "@/components/proposal/proposal-preview"
-import { makeAuthenticatedRequest } from "@/lib/api-client"
-
-interface JobAnalysis {
-  requirements: string[]
-  metrics: string[]
-  strongWords: string[]
-  industry: string
-  businessType: string
-}
 
 interface Message {
   role: "user" | "assistant";
   content: string;
 }
 
-export default function NewProposal() {
-  const [jobTitle, setJobTitle] = useState("")
-  const [jobDescription, setJobDescription] = useState("")
-  const [customInstructions, setCustomInstructions] = useState("")
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [isAnalyzed, setIsAnalyzed] = useState(false)
-  const [isGenerating, setIsGenerating] = useState(false)
-  const [isGenerated, setIsGenerated] = useState(false)
-  const [analysis, setAnalysis] = useState<JobAnalysis | null>(null)
-  const [generatedProposal, setGeneratedProposal] = useState("")
-  const [error, setError] = useState<string | null>(null)
-  const [isTesting, setIsTesting] = useState(false)
+export default function Chat() {
   const [messages, setMessages] = useState<Message[]>([
     { role: "assistant", content: "Hello! How can I help you today?" }
   ]);
@@ -63,96 +34,12 @@ export default function NewProposal() {
     setLoading(false);
   };
 
-  const testOpenAI = async () => {
-    setIsTesting(true)
-    setError(null)
-
-    try {
-      const response = await fetch("/api/test-openai")
-      const data = await response.json()
-
-      if (response.ok) {
-        setError(`✅ OpenAI Test Successful: ${data.response}`)
-      } else {
-        setError(`❌ OpenAI Test Failed: ${data.error} - ${data.details || ""}`)
-      }
-    } catch (err) {
-      setError(`❌ Test Error: ${err instanceof Error ? err.message : "Unknown error"}`)
-    } finally {
-      setIsTesting(false)
-    }
-  }
-
-  const handleAnalyze = async () => {
-    if (!jobDescription.trim()) return
-
-    setIsAnalyzing(true)
-    setError(null)
-
-    try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ jobDescription }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP ${response.status}: ${data.details || "Failed to analyze job description"}`)
-      }
-
-      setAnalysis(data)
-      setIsAnalyzed(true)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred analyzing the job description")
-      console.error("Analysis error:", err)
-    } finally {
-      setIsAnalyzing(false)
-    }
-  }
-
-  const handleGenerate = async () => {
-    if (!analysis) return
-
-    setIsGenerating(true)
-    setError(null)
-
-    try {
-      const response = await makeAuthenticatedRequest("/api/generate", {
-        method: "POST",
-        body: JSON.stringify({
-          jobDescription,
-          analysis,
-          customInstructions,
-          jobTitle,
-        }),
-      })
-
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || `HTTP ${response.status}: ${data.details || "Failed to generate proposal"}`)
-      }
-
-      setGeneratedProposal(data.proposal)
-      setIsGenerated(true)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred generating the proposal")
-      console.error("Generation error:", err)
-    } finally {
-      setIsGenerating(false)
-    }
-  }
-
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1">
         <div className="lg:col-span-1 space-y-6">
-          <div className="max-w-lg mx-auto border rounded p-4 space-y-4">
-            <div className="space-y-2 h-64 overflow-y-auto bg-gray-50 p-2 rounded">
+          <div className="mx-auto border rounded p-4 space-y-4">
+            <div className="space-y-2 h-100 overflow-y-auto bg-gray-50 p-2 rounded">
               {messages.map((msg, idx) => (
                 <div key={idx} className={msg.role === "user" ? "text-right" : "text-left"}>
                   <span className={msg.role === "user" ? "bg-blue-100" : "bg-gray-200"} style={{ padding: 4, borderRadius: 4 }}>
