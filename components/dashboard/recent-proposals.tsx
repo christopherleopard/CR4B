@@ -13,9 +13,12 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
 
+const STATUS_OPTIONS = ["Sent", "Won", "Lost"];
+
 export default function RecentProposals() {
   const [proposals, setProposals] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statuses, setStatuses] = useState<{ [id: number]: string }>({});
 
   useEffect(() => {
     const fetchProposals = async () => {
@@ -31,12 +34,24 @@ export default function RecentProposals() {
         setProposals([]);
       } else {
         setProposals(data);
+        const initialStatuses: { [id: number]: string } = {};
+        data.forEach((p: any) => {
+          initialStatuses[p.id] = "Sent";
+        });
+        setStatuses(initialStatuses);
       }
       setLoading(false);
     };
 
     fetchProposals();
   }, []);
+
+  const handleStatusChange = (proposalId: number, newStatus: string) => {
+    setStatuses((prev) => ({
+      ...prev,
+      [proposalId]: newStatus,
+    }));
+  };
 
   return (
     <Card>
@@ -68,18 +83,27 @@ export default function RecentProposals() {
                     </td>
                     <td className="py-3 px-2">{proposal.created_at ? new Date(proposal.created_at).toLocaleDateString() : "-"}</td>
                     <td className="py-3 px-2">
+                      <select
+                        className="border rounded px-2 py-1 mr-2"
+                        value={statuses[proposal.id] || "Sent"}
+                        onChange={e => handleStatusChange(proposal.id, e.target.value)}
+                      >
+                        {STATUS_OPTIONS.map(option => (
+                          <option key={option} value={option}>{option}</option>
+                        ))}
+                      </select>
                       <Badge
                         variant={
-                          proposal.status === "Won"
+                          statuses[proposal.id] === "Won"
                             ? "success"
-                            : proposal.status === "Lost"
+                            : statuses[proposal.id] === "Lost"
                               ? "destructive"
-                              : proposal.status === "Sent"
+                              : statuses[proposal.id] === "Sent"
                                 ? "default"
                                 : "outline"
                         }
                       >
-                        {proposal.status || "Sent"}
+                        {statuses[proposal.id] || "Sent"}
                       </Badge>
                     </td>
                     <td className="py-3 px-2 text-right">
